@@ -19,18 +19,15 @@ Don't forget to terminate each SQL-like statement with a semicolon (;)
         self._session = session
         self._max_col_width = max_col_width
         self._transaction = None
-        self._last_args = None
 
     def default(self, arg):
         "General shell command entry point"
-        if arg != self._last_args:
-            self._last_args = arg
-            self._command_queue.ingest_line(arg.strip())
-            [self._execute(cmd) for cmd in self._command_queue.commands()]
-            if self._command_queue.has_fragment():
-                self.prompt = SQL_CONTINUE_PROMPT
-            else:
-                self.prompt = SQL_PROMPT
+        self._command_queue.ingest_line(arg.strip())
+        [self._execute(cmd) for cmd in self._command_queue.commands()]
+        if self._command_queue.has_fragment():
+            self.prompt = SQL_CONTINUE_PROMPT
+        else:
+            self.prompt = SQL_PROMPT
 
     def do_bye(self, arg):
         "Exit the SQL-like shell"
