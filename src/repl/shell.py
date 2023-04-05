@@ -16,8 +16,7 @@ REPL shell for Visier SQL-like queries.
 """
 
 from cmd import Cmd
-from requests.exceptions import HTTPError
-from visier.connector import VisierSession
+from visier.connector import VisierSession, QueryExecutionError
 from .cmd_queue import CommandQueue
 from .constants import SQL_BYE, SQL_CONTINUE_PROMPT, SQL_OPTIONS, SQL_PROMPT
 from .display import TableDisplay
@@ -30,7 +29,7 @@ class SqlLikeShell(Cmd):
 Type help or ? to list commands.
 
 Don't forget to terminate each SQL-like statement with a semicolon (;)
-\x1b[0m"""
+\x1b[;;40m"""
         self.prompt = SQL_PROMPT
         self._command_queue = CommandQueue()
         self._session = session
@@ -46,6 +45,10 @@ Don't forget to terminate each SQL-like statement with a semicolon (;)
             self.prompt = SQL_CONTINUE_PROMPT
         else:
             self.prompt = SQL_PROMPT
+
+    def emptyline(self):
+        "Empty line handler"
+        pass
 
     def do_bye(self, _):
         "Exit the SQL-like shell"
@@ -68,7 +71,7 @@ Don't forget to terminate each SQL-like statement with a semicolon (;)
             result = self._session.execute_sqllike(cmd, SQL_OPTIONS)
             table = TableDisplay(result, max_col_width=self._max_col_width)
             table.display()
-        except HTTPError as error:
+        except QueryExecutionError as error:
             self._error(f"Executing query {cmd}.\nDetails: {error}")
 
     def _error(self, msg):
