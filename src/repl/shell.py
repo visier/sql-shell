@@ -1,13 +1,30 @@
+# This file is part of visier-sqllike-shell.
+#
+# visier-sqllike-shell is free software: you can redistribute it and/or modify
+# it under the terms of the Apache License, Version 2.0 (the "License").
+#
+# visier-sqllike-shell is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# Apache License, Version 2.0 for more details.
+#
+# You should have received a copy of the Apache License, Version 2.0
+# along with visier-sqllike-shell. If not, see <https://www.apache.org/licenses/LICENSE-2.0>.
+
+"""
+REPL shell for Visier SQL-like queries.
+"""
+
 from cmd import Cmd
+from requests.exceptions import HTTPError
 from visier.connector import VisierSession
 from .cmd_queue import CommandQueue
-from .constants import *
+from .constants import SQL_BYE, SQL_CONTINUE_PROMPT, SQL_OPTIONS, SQL_PROMPT
 from .display import TableDisplay
-
 
 class SqlLikeShell(Cmd):
     """REPL shell for Visier SQL-like queries"""
-    def __init__(self, session: VisierSession, max_col_width: int): 
+    def __init__(self, session: VisierSession, max_col_width: int):
         super().__init__()
         self.intro = """\x1b[1;32;40mWelcome to the Visier SQL-like Shell.
 Type help or ? to list commands.
@@ -19,20 +36,18 @@ Don't forget to terminate each SQL-like statement with a semicolon (;)
         self._session = session
         self._max_col_width = max_col_width
         self._transaction = None
-        self._last_args = None
 
-    def default(self, arg):
+    def default(self, line):
         "General shell command entry point"
-        if arg != self._last_args:
-            self._last_args = arg
-            self._command_queue.ingest_line(arg.strip())
-            [self._execute(cmd) for cmd in self._command_queue.commands()]
-            if self._command_queue.has_fragment():
-                self.prompt = SQL_CONTINUE_PROMPT
-            else:
-                self.prompt = SQL_PROMPT
+        self._command_queue.ingest_line(line.strip())
+        for cmd in self._command_queue.commands():
+            self._execute(cmd)
+        if self._command_queue.has_fragment():
+            self.prompt = SQL_CONTINUE_PROMPT
+        else:
+            self.prompt = SQL_PROMPT
 
-    def do_bye(self, arg):
+    def do_bye(self, _):
         "Exit the SQL-like shell"
         print(SQL_BYE)
         return True
@@ -53,9 +68,9 @@ Don't forget to terminate each SQL-like statement with a semicolon (;)
             result = self._session.execute_sqllike(cmd, SQL_OPTIONS)
             table = TableDisplay(result, max_col_width=self._max_col_width)
             table.display()
-        except Exception as e:
-            self._error("Executing query {}.\nDetails: {}".format(cmd, e))
+        except HTTPError as error:
+            self._error(f"Executing query {cmd}.\nDetails: {error}")
 
     def _error(self, msg):
         "Prints an error message"
-        print("\x1b[1;31;40mERROR: {}\x1b[0m".format(msg))
+        print(f"\x1b[1;31;40mERROR: {msg}\x1b[0m")
