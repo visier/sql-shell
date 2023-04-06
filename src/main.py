@@ -19,10 +19,11 @@ import os
 import argparse
 from visier.connector import Authentication
 from visier.connector import VisierSession
-from repl import SqlLikeShell
+from src.repl import SqlLikeShell
 
 
-if __name__ == "__main__":
+def main():
+    "Main entrypoint for the visier-sqllike-shell command."
     parser = argparse.ArgumentParser(description="Visier SQL-like Shell")
     parser.add_argument("-u", "--username", help="Visier username", type=str)
     parser.add_argument("-p", "--password", help="Visier password", type=str)
@@ -51,3 +52,6 @@ if __name__ == "__main__":
 
     with VisierSession(auth) as session:
         SqlLikeShell(session, args.width).cmdloop()
+
+if __name__ == "__main__":
+    main()

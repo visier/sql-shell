@@ -73,6 +73,8 @@ Don't forget to terminate each SQL-like statement with a semicolon (;)
             table.display()
         except QueryExecutionError as error:
             self._error(f"Executing query {cmd}.\nDetails: {error}")
+        except StopIteration:
+            print("Query returned no results.")
 
     def _error(self, msg):
         "Prints an error message"

@@ -13,8 +13,9 @@ The recommended approach is to install this application in a Virtual Environment
 ```sh
 python3 -m venv visier-sql
 source visier-sql/bin/activate
-pip install -r requirements.txt
+python setup.py install
 ```
+This installs, in the active virtual environment, a command line utility named `vsql-shell`
 
 ## Run the shell
 Upon starting, the shell will immediately attempt to connect to the Visier platform using the provided credentials. These can either be passed in through environment variables:
@@ -24,12 +25,35 @@ Upon starting, the shell will immediately attempt to connect to the Visier platf
 * `VISIER_APIKEY`
 * `VISIER_VANITY`
 
+On linux-like **non-production** environments, it may be beneficial to persist these values in a file that you 'source' into your virtual environment. E.g. create a file named `.env` and populate like the following example:
+```
+echo -n "Enter the password for the Visier API User: "
+read -s vpwd
+export VISIER_HOST=https://example.api.visier.io
+export VISIER_USERNAME=apiuser@example.com
+export VISIER_PASSWORD=$vpwd
+export VISIER_APIKEY=the-api-key-issued-by-visier
+export VISIER_VANITY=example
+```
+
+Source the environment and provide the password:
+```
+$ . .env
+```
+
+Now the REPL can be started simply by running:
+```
+$ vsql-shell
+```
+
 Alternatively, credentials can be provided through command line arguments. Run the application with `--help` to get the argument specifics:
 
-`$ python src/main.py --help`
+```
+$ vsql-shell --help`
+```
 
 ```sh
-usage: main.py [-h] [-u USERNAME] [-p PASSWORD] [-a APIKEY] [-v VANITY] [-H HOST] [-w WIDTH]
+usage: vsql-shell [-h] [-u USERNAME] [-p PASSWORD] [-a APIKEY] [-v VANITY] [-H HOST] [-w WIDTH]
 
 Visier SQL-like Shell
 
@@ -47,10 +71,10 @@ options:
   -w WIDTH, --width WIDTH
                         Maximum column width
 ```
- ## Example
- Once the application has successfully started and established a connection with the Visier platform, it is ready to execute SQL-like queries:
- ```
- Welcome to the Visier SQL-like Shell.
+## Example
+Once the application has successfully started and established a connection with the Visier platform, it is ready to execute SQL-like queries:
+```
+Welcome to the Visier SQL-like Shell.
 Type help or ? to list commands.
 
 Don't forget to terminate each SQL-like statement with a semicolon (;)
