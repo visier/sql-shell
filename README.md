@@ -14,6 +14,7 @@ The recommended approach is to install this application in a Virtual Environment
 ```sh
 python3 -m venv visier-sql
 source visier-sql/bin/activate
+pip install -r requirements.txt
 python setup.py install
 ```
 This installs, in the active virtual environment, a command line utility named `vsql-shell`
