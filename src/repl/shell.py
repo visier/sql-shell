@@ -48,7 +48,6 @@ Don't forget to terminate each SQL-like statement with a semicolon (;)
 
     def emptyline(self):
         "Empty line handler"
-        pass
 
     def do_bye(self, _):
         "Exit the SQL-like shell"

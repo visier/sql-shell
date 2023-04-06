@@ -29,7 +29,8 @@ setuptools.setup(
     version=VERSION,
     author="Visier Research & Development",
     author_email="info@visier.com",
-    description="Sample Command line utitlity for executing SQL-like queries against the Visier platform",
+    description="""Sample Command line utitlity for executing SQL-like
+    queries against the Visier platform""",
     packages=setuptools.find_packages(include=["src", "src.*"]),
     include_package_data=True,
     install_requires=REQUIRES,
