@@ -1,1 +1,1 @@
-visier-connector>=0.8.1
+visier-connector
