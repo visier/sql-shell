@@ -1,3 +1,4 @@
+![linting](https://github.com/visier/sql-shell/actions/workflows/pylint.yml/badge.svg)
 # Visier SQL-like Shell
 The Visier SQL-like Shell a very small application that technical Visier users and builders issue queries in Visier's SQL-like syntax against the Visier platform.
 
