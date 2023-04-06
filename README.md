@@ -40,7 +40,7 @@ export VISIER_VANITY=example
 
 Source the environment and provide the password:
 ```
-$ . .env
+$ source .env
 ```
 
 Now the REPL can be started simply by running:
