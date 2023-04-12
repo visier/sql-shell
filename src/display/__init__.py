@@ -12,15 +12,7 @@
 # along with visier-sqllike-shell. If not, see <https://www.apache.org/licenses/LICENSE-2.0>.
 
 """
-Visier SQL-like Read Eval Print Loop (REPL) constants.
+Visier SQL-like Display module
 """
 
-# SQL-like shell constants
-SQL_INTRO = """
-\x1b[1;32;40mWelcome to the Visier SQL-like Shell.
-Type help or ? to list commands.
-
-Don't forget to terminate each SQL-like statement with a semicolon (;)
-\x1b[;;40m
-"""
-SQL_BYE = "\x1b[1;32;40mClosing the application\x1b[0m"
+from .table import TableDisplay

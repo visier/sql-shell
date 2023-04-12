@@ -12,15 +12,19 @@
 # along with visier-sqllike-shell. If not, see <https://www.apache.org/licenses/LICENSE-2.0>.
 
 """
-Visier SQL-like Read Eval Print Loop (REPL) constants.
+Abstract representation of a state in the state machine
 """
 
-# SQL-like shell constants
-SQL_INTRO = """
-\x1b[1;32;40mWelcome to the Visier SQL-like Shell.
-Type help or ? to list commands.
+from abc import ABC
 
-Don't forget to terminate each SQL-like statement with a semicolon (;)
-\x1b[;;40m
-"""
-SQL_BYE = "\x1b[1;32;40mClosing the application\x1b[0m"
+
+class State(ABC):
+    "Abstract base class for a state in the state machine"
+    def prompt(self) -> str:
+        "Returns the prompt for the current state"
+
+    def continue_prompt(self) -> str:
+        "Returns the continuation prompt relevant for multi-line commands for the current state"
+
+    def execute(self, cmd: str):
+        "Executes a command in the current state"
