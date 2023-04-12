@@ -1,21 +1,25 @@
 ![linting](https://github.com/visier/sql-shell/actions/workflows/pylint.yml/badge.svg)
 # Visier SQL-like Shell
-The Visier SQL-like Shell a very small application that technical Visier users and builders issue queries in Visier's SQL-like syntax against the Visier platform.
+The Visier SQL-like Shell is a small application that technical users and builders can use to issue queries in Visier's SQL-like syntax against the Visier platform.
 
 ## Prerequisites
 The SQL-like Shell issues queries to the Visier platform using the platform's public APIs. In order to successfully connect to your Visier People data, you need:
-* The URL domain name prefix. Likely matching a pattern like this: `https://{vanity-name}.api.visier.io`.
-* An API key that issued by Visier to your organization.
+* The URL domain name prefix. For example: `https://{vanity-name}.api.visier.io`.
+* An API key issued by Visier.
 * A username identifying a user within your organization's Visier tenant who has been granted API access capabilities.
 * That user's password
 
 ## Installation
-The recommended approach is to install this application in a Virtual Environment.
+We recommend that you install this application in a virtual environment..
 ```sh
 python3 -m venv visier-sql
 source visier-sql/bin/activate
-pip install -r requirements.txt
-python setup.py install
+pip install -U build
+python -m build
+```
+Once the build has completed successfully, install the Python Wheel file that has been placed in the `dist` directory. For example:
+```sh
+pip install dist/visier_sqllike_shell-0.8.2-py3-none-any.whl
 ```
 This installs, in the active virtual environment, a command line utility named `vsql-shell`
 
@@ -27,7 +31,8 @@ Upon starting, the shell will immediately attempt to connect to the Visier platf
 * `VISIER_APIKEY`
 * `VISIER_VANITY`
 
-On linux-like **non-production** environments, it may be beneficial to persist these values in a file that you 'source' into your virtual environment. E.g. create a file named `.env` and populate like the following example:
+On linux-like **non-production** environments, it may be beneficial to persist these values in a file that you 'source' into your virtual environment. 	
+Create a file named `.env` and populate it like the following example:
 ```
 echo -n "Enter the password for the Visier API User: "
 read -s vpwd

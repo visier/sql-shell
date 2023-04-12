@@ -19,7 +19,7 @@ import os
 import argparse
 from visier.connector import Authentication
 from visier.connector import VisierSession
-from src.repl import SqlLikeShell
+from repl import SqlLikeShell
 
 
 def main():
