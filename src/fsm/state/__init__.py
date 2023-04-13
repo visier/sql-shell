@@ -15,5 +15,7 @@
 State module for the SQL-shell Finite State Machine (FSM).
 """
 
-from .state import State
+from .state import State, parse_attr_cmd
 from .analytic import AnalyticState
+from .staging import StagingState
+from .transaction import TransactionState

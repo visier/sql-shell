@@ -17,7 +17,7 @@ Test cases for the command queue
 """
 
 import pytest
-from src.repl import CommandQueue as CmdQueue
+from repl import CommandQueue as CmdQueue
 
 
 # test cases for various line inputs that are both complete commands and fragments
@@ -30,7 +30,7 @@ def test_should_handle_complete_commands():
 
 def test_should_handle_complete_commands_with_semicolons_in_string_literals():
     queue = CmdQueue()
-    queue.ingest_line("SELECT * FROM foo WHERE bar = 'foo;bar';SELECT * FROM bar;")
+    queue.ingest_line("SELECT * FROM foo WHERE bar = 'foo;bar'; SELECT * FROM bar;")
     assert list(queue.commands()) == ["SELECT * FROM foo WHERE bar = 'foo;bar'",
                                       "SELECT * FROM bar"]
     assert not queue.has_fragment()

@@ -15,10 +15,11 @@
 Defines the FSM State for analytic SQL-like query execution.
 """
 
+from typing import Tuple
 from visier.connector import VisierSession, QueryExecutionError
 from display.table import TableDisplay
-from .state import State
-from .constants import SQL_CONTINUE_PROMPT, SQL_PROMPT, SQL_OPTIONS
+from .state import State, is_set_cmd, parse_attr_cmd
+from .constants import SQL_CONTINUE_PROMPT, SQL_PROMPT, SQL_OPTIONS, VALUE_STAGING, STATE_STAGING
 
 
 class AnalyticState(State):
@@ -34,15 +35,24 @@ class AnalyticState(State):
     def continue_prompt(self) -> str:
         return SQL_CONTINUE_PROMPT
 
-    def execute(self, cmd: str):
+    def execute(self, cmd: str) -> None | Tuple[str, object]:
         "Executes a SQL-like statement"
-        if len(cmd) > 6 and cmd[0:6].lower() == "select":
+        if cmd[0:6].lower().startswith("select"):
             self._execute_data_query(cmd)
+        elif is_set_cmd(cmd):
+            try:
+                # Will throw ValueError if cmd is not a valid SET statement,
+                # setting the schema to staging
+                parse_attr_cmd(cmd, VALUE_STAGING)
+                return (STATE_STAGING, {})
+            except ValueError as attr_set_error:
+                self._error(attr_set_error)
         else:
             if len(cmd) > 1:
-                self._error("Only SELECT statements are supported")
+                self._error("Only SELECT or SET schema TO statements are supported")
             else:
                 print("")
+        return None
 
     def _execute_data_query(self, cmd: str):
         "Executes a data query"
@@ -54,7 +64,3 @@ class AnalyticState(State):
             self._error(f"Executing query {cmd}.\nDetails: {error}")
         except StopIteration:
             print("Query returned no results.")
-
-    def _error(self, msg):
-        "Prints an error message"
-        print(f"\x1b[1;31;40mERROR: {msg}\x1b[0m")

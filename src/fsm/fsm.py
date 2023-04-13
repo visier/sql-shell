@@ -16,17 +16,19 @@ The finite state machine for the SQL-like shell that ensures that
 SQL-like statements are executed in the corect context.
 """
 
+from typing import Dict, Tuple
 from visier.connector import VisierSession
-from .state import State
-from .state.analytic import AnalyticState
+from .state import State, AnalyticState, StagingState, TransactionState
+from .state.constants import STATE_ANALYTIC, STATE_STAGING, STATE_TRANSACTION
 
 class StateMachine:
     """
     The finite state machine for the SQL-like shell that ensures that
     SQL-like statements are executed in the corect context.
     """
-    def __init__(self, initial_state: State):
-        self._state = initial_state
+    def __init__(self, states: Dict, initial_state: str):
+        self._states = states
+        self._state = self._states[initial_state]
 
     def prompt(self) -> str:
         """
@@ -44,16 +46,28 @@ class StateMachine:
         """
         Executes a command in the current state
         """
-        self._state.execute(cmd)
+        transition_req = self._state.execute(cmd)
+        if transition_req is not None:
+            self.transition_to(transition_req)
 
-    def transition_to(self, state: State):
+    def transition_to(self, transition_req: Tuple[str, object]):
         """
         Sets the current state
         """
-        self._state = state
+        # TODO: set transition state parameters
+        (new_state_name, params) = transition_req
+        new_state = self._states[new_state_name]
+        self._state = new_state
 
-def mk_fsm(session: VisierSession, max_col_width: int) -> StateMachine:
+
+def mk_fsm(session: VisierSession, max_col_width: int, initial_state: str = STATE_ANALYTIC) -> StateMachine:
     """
     Creates a new state machine in the initial state
     """
-    return StateMachine(AnalyticState(session, max_col_width))
+    if initial_state not in [STATE_ANALYTIC, STATE_STAGING]:
+        raise ValueError('Invalid initial state')
+    
+    states = {STATE_ANALYTIC: AnalyticState(session, max_col_width), 
+              STATE_STAGING: StagingState(session),
+              STATE_TRANSACTION: TransactionState(session)}
+    return StateMachine(states, initial_state)
