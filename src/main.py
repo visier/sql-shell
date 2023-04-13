@@ -20,6 +20,7 @@ import argparse
 from visier.connector import Authentication
 from visier.connector import VisierSession
 from repl import SqlLikeShell
+from fsm.state.constants import VALUE_ANALYTIC, VALUE_STAGING
 
 
 def main():
@@ -31,6 +32,8 @@ def main():
     parser.add_argument("-v", "--vanity", help="Visier vanity", type=str)
     parser.add_argument("-H", "--host", help="Visier host", type=str)
     parser.add_argument("-w", "--width", help="Maximum column width", type=int, default=30)
+    parser.add_argument("-s", "--schema", help="The initial schema to use",
+                        choices=[VALUE_ANALYTIC, VALUE_STAGING], default=VALUE_ANALYTIC)
     args = parser.parse_args()
 
     username = args.username or os.getenv("VISIER_USERNAME")
@@ -51,7 +54,7 @@ def main():
         vanity = vanity)
 
     with VisierSession(auth) as session:
-        SqlLikeShell(session, args.width).cmdloop()
+        SqlLikeShell(session, args.width, args.schema).cmdloop()
 
 if __name__ == "__main__":
     main()

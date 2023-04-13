@@ -18,7 +18,7 @@ REPL shell for Visier SQL-like queries.
 from cmd import Cmd
 from visier.connector import VisierSession
 from fsm import mk_fsm
-from fsm.state.constants import STATE_STAGING
+from fsm.state.constants import SCHEMA_MAP
 from .cmd_queue import CommandQueue
 from .constants import SQL_INTRO, SQL_BYE
 
@@ -27,10 +27,12 @@ class SqlLikeShell(Cmd):
     """
     REPL shell for Visier SQL-like queries
     """
-    def __init__(self, session: VisierSession, max_col_width: int):
+    def __init__(self, session: VisierSession,
+                 max_col_width: int,
+                 initial_schema: str):
         super().__init__()
         self.intro = SQL_INTRO
-        self._fsm = mk_fsm(session, max_col_width, STATE_STAGING)
+        self._fsm = mk_fsm(session, max_col_width, SCHEMA_MAP[initial_schema])
         self.prompt = self._fsm.prompt()
         self._command_queue = CommandQueue()
         self._transaction = None

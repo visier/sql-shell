@@ -16,6 +16,7 @@ Defines the FSM State for executing SQL-like commands within the context of a tr
 """
 
 from typing import Tuple
+import re
 from requests import Session, Response
 from visier.connector import VisierSession, QueryExecutionError
 from .state import State
@@ -31,7 +32,7 @@ class TransactionState(State):
     def __init__(self, session: VisierSession) -> None:
         super().__init__()
         self._session = session
-        # self._params = {}
+        self._copy = re.compile(r'^\s*copy\s+(?P<table_name>\w+)\s+from\s+\'(?P<file_path>[^\']*)\'\s*$', re.IGNORECASE)
 
     def prompt(self) -> str:
         return SQL_TRANSACTION_PROMPT
@@ -39,14 +40,9 @@ class TransactionState(State):
     def continue_prompt(self) -> str:
         return SQL_TRANSACTION_CONTINUE_PROMPT
 
-    # def put_parameters(self, params: object) -> None:
-    #     print(f"Setting parameters: {params}")
-    #     self._params = params
-
     def execute(self, cmd: str) -> None | Tuple[str, object]:
-        """
-        Main entry point for executing a command while in a transactional context.
-        """
+        if self._is_upload_cmd(cmd):
+            return self._execute_upload(cmd)
         if self._is_commit_cmd(cmd):
             return self._execute_commit()
         if self._is_rollback_cmd(cmd):
@@ -54,11 +50,28 @@ class TransactionState(State):
         self._error(f"Invalid command: {cmd}")
         return None
 
+    def _is_upload_cmd(self, cmd: str) -> bool:
+        return self._copy.match(cmd) is not None
+
     def _is_rollback_cmd(self, cmd: str) -> bool:
         return cmd.lower().startswith("rollback")
 
     def _is_commit_cmd(self, cmd: str) -> bool:
         return cmd.lower().startswith("commit")
+
+    def _execute_upload(self, cmd: str) -> None:
+        match = self._copy.match(cmd)
+        table_name = match.group("table_name")
+        file_path = match.group("file_path")
+
+        def _api_upload(session: Session) -> Response:
+            transaction_id = self._get_transaction_id()
+            return session.put(f"{self._session._auth.host}/v1/data/directloads/{PROJECT_PROD}/transactions/{transaction_id}/{table_name}",
+                               files={"file": open(file_path, "rb")})
+        try:
+            self._session.execute(_api_upload)
+        except QueryExecutionError as query_exec_error:
+            self._error(f"Could not upload data: {query_exec_error}")
 
     def _execute_commit(self) -> Tuple[str, object]:
         def _api_commit(session: Session) -> Response:
@@ -71,15 +84,14 @@ class TransactionState(State):
         return (STATE_STAGING, {})
 
     def _execute_rollback(self) -> Tuple[str, object]:
+        def _api_rollback(session: Session) -> Response:
+            transaction_id = self._get_transaction_id()
+            return session.delete(f"{self._session._auth.host}/v1/data/directloads/{PROJECT_PROD}/transactions/{transaction_id}")
         try:
-            self._session.execute(self._api_rollback)
+            self._session.execute(_api_rollback)
         except QueryExecutionError as query_exec_error:
             self._error(f"Could not rollback transaction: {query_exec_error}")
         return (STATE_STAGING, {})
-
-    def _api_rollback(self, session: Session) -> Response:
-        transaction_id = self._get_transaction_id()
-        return session.delete(f"{self._session._auth.host}/v1/data/directloads/{PROJECT_PROD}/transactions/{transaction_id}")
 
     def _get_transaction_id(self) -> str:
         try:

@@ -6,7 +6,7 @@
             "type": "python",
             "request": "launch",
             "module": "src.main",
-            "justMyCode": false,
+            "justMyCode": true,
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/src"
             }

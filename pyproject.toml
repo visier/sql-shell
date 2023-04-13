@@ -10,7 +10,7 @@ authors = [
 description = """Sample Command line utitlity for executing SQL-like
 queries against the Visier platform"""
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 keywords = ["sql", "repl", "shell", "visier"]
 license = {file = "LICENSE"}
 dynamic = ["version"]
