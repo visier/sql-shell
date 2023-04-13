@@ -16,8 +16,8 @@ Visier SQL-like Read Eval Print Loop (REPL) constants.
 """
 
 # SQL-like shell constants
-SQL_PROMPT = "\x1b[1;34;40msql> \x1b[1;37;40m"
-SQL_CONTINUE_PROMPT = "\x1b[1;34;40m   | \x1b[1;37;40m"
+SQL_PROMPT = "\x1b[1;34;40manalytic> \x1b[1;37;40m"
+SQL_CONTINUE_PROMPT = "\x1b[1;34;40m        | \x1b[1;37;40m"
 SQL_OPTIONS = {
         "memberDisplayMode": "COMPACT",
         "zeroVisibility": "ELIMINATE",
@@ -36,3 +36,6 @@ STATE_TRANSACTION = "transaction_state"
 ATTR_SCHEMA = "schema"
 VALUE_ANALYTIC = "analytic"
 VALUE_STAGING = "staging"
+
+PROJECT_PROD = "prod"
+TRANSACTION_ID = "transactionId"

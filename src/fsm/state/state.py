@@ -21,7 +21,13 @@ from typing import Tuple
 from .constants import VALUE_ANALYTIC, VALUE_STAGING, ATTR_SCHEMA
 
 class State(ABC):
-    "Abstract base class for a state in the state machine"
+    """
+    Abstract representation of a state in the state machine
+    """
+    def __init__(self) -> None:
+        super().__init__()
+        self._params = {}
+
     def prompt(self) -> str:
         "Returns the prompt for the current state"
 
@@ -30,6 +36,10 @@ class State(ABC):
 
     def execute(self, cmd: str) -> None | Tuple[str, object]:
         "Executes a command in the current state"
+
+    def put_parameters(self, params: object) -> None:
+        "Sets the state's parameters"
+        self._params = params
 
     def _error(self, msg):
         "Prints an error message"

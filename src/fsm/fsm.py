@@ -52,22 +52,24 @@ class StateMachine:
 
     def transition_to(self, transition_req: Tuple[str, object]):
         """
-        Sets the current state
+        Sets the current state and initialize with parameter values where applicable
         """
-        # TODO: set transition state parameters
         (new_state_name, params) = transition_req
-        new_state = self._states[new_state_name]
+        new_state: State = self._states[new_state_name]
+        new_state.put_parameters(params)
         self._state = new_state
 
 
-def mk_fsm(session: VisierSession, max_col_width: int, initial_state: str = STATE_ANALYTIC) -> StateMachine:
+def mk_fsm(session: VisierSession,
+           max_col_width: int,
+           initial_state: str = STATE_ANALYTIC) -> StateMachine:
     """
     Creates a new state machine in the initial state
     """
     if initial_state not in [STATE_ANALYTIC, STATE_STAGING]:
         raise ValueError('Invalid initial state')
-    
-    states = {STATE_ANALYTIC: AnalyticState(session, max_col_width), 
+
+    states = {STATE_ANALYTIC: AnalyticState(session, max_col_width),
               STATE_STAGING: StagingState(session),
               STATE_TRANSACTION: TransactionState(session)}
     return StateMachine(states, initial_state)

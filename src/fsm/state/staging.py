@@ -15,16 +15,23 @@
 Defines the FSM State for staging SQL-like query execution.
 """
 
+import re
 from typing import Tuple
-from visier.connector import VisierSession
+from requests import Session, Response
+from visier.connector import VisierSession, QueryExecutionError
 from .state import State, is_set_cmd, parse_attr_cmd
-from .constants import (SQL_STAGING_PROMPT, SQL_STAGING_CONTINUE_PROMPT, 
-                        VALUE_ANALYTIC, STATE_ANALYTIC)
+from .constants import (PROJECT_PROD,
+                        SQL_STAGING_PROMPT,
+                        SQL_STAGING_CONTINUE_PROMPT,
+                        VALUE_ANALYTIC,
+                        STATE_ANALYTIC,
+                        STATE_TRANSACTION)
 
 class StagingState(State):
     """State for staging SQL-like query execution."""
     def __init__(self, session: VisierSession) -> None:
         super().__init__()
+        self._begin = re.compile(r'^\s*begin\s+transaction\s*$', re.IGNORECASE)
         self._session = session
 
     def prompt(self) -> str:
@@ -42,4 +49,21 @@ class StagingState(State):
                 return (STATE_ANALYTIC, {})
             except ValueError as attr_set_error:
                 self._error(attr_set_error)
+        elif self._is_begin_cmd(cmd):
+            try:
+                response = self._session.execute(self._api_begin)
+                return (STATE_TRANSACTION, response.json())
+            except QueryExecutionError as query_exec_error:
+                self._error(f"Failed to start transaction: {query_exec_error}")
+        else:
+            self._error(f"Invalid command: {cmd}")
         return None
+
+    def _is_begin_cmd(self, cmd: str) -> bool:
+        return self._begin.match(cmd) is not None
+
+    def _api_begin(self, session: Session) -> Response:
+        """
+        Start a new transaction.
+        """
+        return session.post(f'{self._session._auth.host}/v1/data/directloads/{PROJECT_PROD}/transactions')

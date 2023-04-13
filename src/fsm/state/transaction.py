@@ -15,14 +15,23 @@
 Defines the FSM State for executing SQL-like commands within the context of a transaction.
 """
 
+from typing import Tuple
+from requests import Session, Response
+from visier.connector import VisierSession, QueryExecutionError
 from .state import State
-from .constants import SQL_TRANSACTION_PROMPT, SQL_TRANSACTION_CONTINUE_PROMPT
+from .constants import (PROJECT_PROD,
+                        SQL_TRANSACTION_PROMPT,
+                        SQL_TRANSACTION_CONTINUE_PROMPT,
+                        STATE_STAGING,
+                        TRANSACTION_ID)
+
 
 class TransactionState(State):
     """State for executing SQL-like commands within the context of a transaction."""
-    def __init__(self, session) -> None:
+    def __init__(self, session: VisierSession) -> None:
         super().__init__()
         self._session = session
+        # self._params = {}
 
     def prompt(self) -> str:
         return SQL_TRANSACTION_PROMPT
@@ -30,23 +39,51 @@ class TransactionState(State):
     def continue_prompt(self) -> str:
         return SQL_TRANSACTION_CONTINUE_PROMPT
 
-    # def execute(self, cmd: str) -> None | Tuple[str, object]:
-    #     if is_set_cmd(cmd):
-    #         try:
-    #             # Will throw ValueError if cmd is not a valid SET statement,
-    #             # setting the schema to analytic
-    #             parse_attr_cmd(cmd, VALUE_ANALYTIC)
-    #             return (STATE_ANALYTIC, {})
-    #         except ValueError as attr_set_error:
-    #             self._error(attr_set_error)
-    #     elif is_commit_cmd(cmd):
-    #         self._session.commit()
-    #         return (STATE_ANALYTIC, {})
-    #     elif is_rollback_cmd(cmd):
-    #         self._session.rollback()
-    #         return (STATE_ANALYTIC, {})
-    #     else:
-    #         try:
-    #             self._session.execute(cmd)
-    #         except Exception as e:
-    #             self._error(e)
+    # def put_parameters(self, params: object) -> None:
+    #     print(f"Setting parameters: {params}")
+    #     self._params = params
+
+    def execute(self, cmd: str) -> None | Tuple[str, object]:
+        """
+        Main entry point for executing a command while in a transactional context.
+        """
+        if self._is_commit_cmd(cmd):
+            return self._execute_commit()
+        if self._is_rollback_cmd(cmd):
+            return self._execute_rollback()
+        self._error(f"Invalid command: {cmd}")
+        return None
+
+    def _is_rollback_cmd(self, cmd: str) -> bool:
+        return cmd.lower().startswith("rollback")
+
+    def _is_commit_cmd(self, cmd: str) -> bool:
+        return cmd.lower().startswith("commit")
+
+    def _execute_commit(self) -> Tuple[str, object]:
+        def _api_commit(session: Session) -> Response:
+            transaction_id = self._get_transaction_id()
+            return session.post(f"{self._session._auth.host}/v1/data/directloads/{PROJECT_PROD}/transactions/{transaction_id}")
+        try:
+            self._session.execute(_api_commit)
+        except QueryExecutionError as query_exec_error:
+            self._error(f"Could not commit transaction: {query_exec_error}")
+        return (STATE_STAGING, {})
+
+    def _execute_rollback(self) -> Tuple[str, object]:
+        try:
+            self._session.execute(self._api_rollback)
+        except QueryExecutionError as query_exec_error:
+            self._error(f"Could not rollback transaction: {query_exec_error}")
+        return (STATE_STAGING, {})
+
+    def _api_rollback(self, session: Session) -> Response:
+        transaction_id = self._get_transaction_id()
+        return session.delete(f"{self._session._auth.host}/v1/data/directloads/{PROJECT_PROD}/transactions/{transaction_id}")
+
+    def _get_transaction_id(self) -> str:
+        try:
+            transaction_id = self._params[TRANSACTION_ID]
+            return transaction_id
+        except KeyError as key_error:
+            raise KeyError("No transaction id found in the transaction context") from key_error
