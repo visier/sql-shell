@@ -23,16 +23,17 @@ class CommandQueue():
     def __init__(self):
         self._queue = []
         self._fragment = ""
+        self._seq = re.compile(r""";(?=(?:[^'"]|'[^']*'|"[^"]*")*$)""")
 
     def ingest_line(self, line: str):
         "Ingests a string and extracts complete commands or a fragment from it"
-        cmds = re.split(""";(?=(?:[^'"]|'[^']*'|"[^"]*")*$)""", line.strip())
+        cmds = self._seq.split(line.strip())
         if len(cmds) > 1:
             first_cmd = cmds[0]
             if len(self._fragment) > 0:
                 first_cmd = self._fragment + "\n" + first_cmd
                 self._fragment = ""
-            complete_cmds = [first_cmd] + cmds[1:-1]
+            complete_cmds = [first_cmd] + [cmd.strip() for cmd in cmds[1:-1]]
             self._queue.extend(complete_cmds)
             self._fragment = cmds[-1].strip()
         else:

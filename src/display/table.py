@@ -17,11 +17,14 @@ Basic table display for the SQL-like shell
 
 import itertools
 from visier.connector import ResultTable
-from .constants import SQL_TABLE_START, SQL_TABLE_END
 
+
+SQL_TABLE_START = "\n\x1b[1;37;40m"
+SQL_TABLE_END = "\x1b[;;40m\n"
 
 class TableDisplay:
     "Displays the contents of a result table with aligned columns"
+
     def __init__(self, table: ResultTable, max_col_width: int):
         "Initializes the table display which consumes the table rows generator"
         self._header = table.header

@@ -12,10 +12,7 @@
 # along with visier-sqllike-shell. If not, see <https://www.apache.org/licenses/LICENSE-2.0>.
 
 """
-Visier SQL-like Read Eval Print Loop (REPL) module
+Visier SQL-like Display module
 """
 
-from .shell import SqlLikeShell
-from .cmd_queue import CommandQueue
-
-__version__ = "0.9.1"
+from .table import TableDisplay

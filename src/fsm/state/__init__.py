@@ -12,10 +12,10 @@
 # along with visier-sqllike-shell. If not, see <https://www.apache.org/licenses/LICENSE-2.0>.
 
 """
-Visier SQL-like Read Eval Print Loop (REPL) module
+State module for the SQL-shell Finite State Machine (FSM).
 """
 
-from .shell import SqlLikeShell
-from .cmd_queue import CommandQueue
-
-__version__ = "0.9.1"
+from .state import State, parse_attr_cmd
+from .analytic import AnalyticState
+from .staging import StagingState
+from .transaction import TransactionState
