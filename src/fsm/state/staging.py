@@ -17,8 +17,8 @@ Defines the FSM State for staging SQL-like query execution.
 
 import re
 from typing import Tuple
-from requests import Session, Response
-from visier.connector import VisierSession, QueryExecutionError
+from requests import Response
+from visier.connector import VisierSession, SessionContext, QueryExecutionError
 from .state import State, is_set_cmd, parse_attr_cmd
 from .constants import (PROJECT_PROD,
                         SQL_STAGING_PROMPT,
@@ -50,11 +50,7 @@ class StagingState(State):
             except ValueError as attr_set_error:
                 self._error(attr_set_error)
         elif self._is_begin_cmd(cmd):
-            try:
-                response = self._session.execute(self._api_begin)
-                return (STATE_TRANSACTION, response.json())
-            except QueryExecutionError as query_exec_error:
-                self._error(f"Failed to start transaction: {query_exec_error}")
+            return self._execute_begin()
         else:
             self._error(f"Invalid command: {cmd}")
         return None
@@ -62,8 +58,12 @@ class StagingState(State):
     def _is_begin_cmd(self, cmd: str) -> bool:
         return self._begin.match(cmd) is not None
 
-    def _api_begin(self, session: Session) -> Response:
-        """
-        Start a new transaction.
-        """
-        return session.post(f'{self._session._auth.host}/v1/data/directloads/{PROJECT_PROD}/transactions')
+    def _execute_begin(self) -> Tuple[str, object]:
+        def _api_begin(context: SessionContext) -> Response:
+            url = context.mk_url(f"/v1/data/directloads/{PROJECT_PROD}/transactions")
+            return context.session().post(url)
+        try:
+            response = self._session.execute(_api_begin)
+            return (STATE_TRANSACTION, response.json())
+        except QueryExecutionError as query_exec_error:
+            self._error(f"Failed to start transaction: {query_exec_error}")

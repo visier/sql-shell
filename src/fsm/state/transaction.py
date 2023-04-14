@@ -17,8 +17,8 @@ Defines the FSM State for executing SQL-like commands within the context of a tr
 
 from typing import Tuple
 import re
-from requests import Session, Response
-from visier.connector import VisierSession, QueryExecutionError
+from requests import Response
+from visier.connector import VisierSession, SessionContext, QueryExecutionError
 from .state import State
 from .constants import (PROJECT_PROD,
                         SQL_TRANSACTION_PROMPT,
@@ -64,19 +64,20 @@ class TransactionState(State):
         table_name = match.group("table_name")
         file_path = match.group("file_path")
 
-        def _api_upload(session: Session) -> Response:
+        def _api_upload(context: SessionContext) -> Response:
             transaction_id = self._get_transaction_id()
-            return session.put(f"{self._session._auth.host}/v1/data/directloads/{PROJECT_PROD}/transactions/{transaction_id}/{table_name}",
-                               files={"file": open(file_path, "rb")})
+            url = context.mk_url(f"/v1/data/directloads/{PROJECT_PROD}/transactions/{transaction_id}/{table_name}")
+            return context.session().put(url, files={"file": open(file_path, "rb")})
         try:
             self._session.execute(_api_upload)
         except QueryExecutionError as query_exec_error:
             self._error(f"Could not upload data: {query_exec_error}")
 
     def _execute_commit(self) -> Tuple[str, object]:
-        def _api_commit(session: Session) -> Response:
+        def _api_commit(context: SessionContext) -> Response:
             transaction_id = self._get_transaction_id()
-            return session.post(f"{self._session._auth.host}/v1/data/directloads/{PROJECT_PROD}/transactions/{transaction_id}")
+            url = context.mk_url(f"/v1/data/directloads/{PROJECT_PROD}/transactions/{transaction_id}")
+            return context.session().post(url)
         try:
             self._session.execute(_api_commit)
         except QueryExecutionError as query_exec_error:
@@ -84,9 +85,10 @@ class TransactionState(State):
         return (STATE_STAGING, {})
 
     def _execute_rollback(self) -> Tuple[str, object]:
-        def _api_rollback(session: Session) -> Response:
+        def _api_rollback(context: SessionContext) -> Response:
             transaction_id = self._get_transaction_id()
-            return session.delete(f"{self._session._auth.host}/v1/data/directloads/{PROJECT_PROD}/transactions/{transaction_id}")
+            url = context.mk_url(f"/v1/data/directloads/{PROJECT_PROD}/transactions/{transaction_id}")
+            return context.session().delete(url)
         try:
             self._session.execute(_api_rollback)
         except QueryExecutionError as query_exec_error:
