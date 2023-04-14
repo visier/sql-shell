@@ -40,7 +40,7 @@ class TransactionState(State):
     def continue_prompt(self) -> str:
         return SQL_TRANSACTION_CONTINUE_PROMPT
 
-    def execute(self, cmd: str) -> None | Tuple[str, object]:
+    def execute(self, cmd: str) -> Tuple[str, object]:
         if self._is_upload_cmd(cmd):
             return self._execute_upload(cmd)
         if self._is_commit_cmd(cmd):

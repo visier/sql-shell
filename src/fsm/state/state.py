@@ -34,7 +34,7 @@ class State(ABC):
     def continue_prompt(self) -> str:
         "Returns the continuation prompt relevant for multi-line commands for the current state"
 
-    def execute(self, cmd: str) -> None | Tuple[str, object]:
+    def execute(self, cmd: str) -> Tuple[str, object]:
         "Executes a command in the current state"
 
     def put_parameters(self, params: object) -> None:

@@ -40,7 +40,7 @@ class StagingState(State):
     def continue_prompt(self) -> str:
         return SQL_STAGING_CONTINUE_PROMPT
 
-    def execute(self, cmd: str) -> None | Tuple[str, object]:
+    def execute(self, cmd: str) -> Tuple[str, object]:
         if is_set_cmd(cmd):
             try:
                 # Will throw ValueError if cmd is not a valid SET statement,

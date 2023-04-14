@@ -35,7 +35,7 @@ class AnalyticState(State):
     def continue_prompt(self) -> str:
         return SQL_CONTINUE_PROMPT
 
-    def execute(self, cmd: str) -> None | Tuple[str, object]:
+    def execute(self, cmd: str) -> Tuple[str, object]:
         "Executes a SQL-like statement"
         if cmd[0:6].lower().startswith("select"):
             self._execute_data_query(cmd)
