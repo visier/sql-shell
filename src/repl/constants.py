@@ -28,4 +28,4 @@ SET schema TO staging;
 Each SQL-like statement must be terminated with a semicolon (;) in order to execute.
 \x1b[;;40m
 """
-SQL_BYE = "\x1b[1;32;40mClosing the application\x1b[0m"
+SQL_EXIT = "\x1b[1;32;40mClosing the application\x1b[0m"

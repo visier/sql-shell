@@ -20,7 +20,7 @@ from visier.connector import VisierSession
 from fsm import mk_fsm
 from fsm.state.constants import SCHEMA_MAP
 from .cmd_queue import CommandQueue
-from .constants import SQL_INTRO, SQL_BYE
+from .constants import SQL_INTRO, SQL_EXIT
 
 
 class SqlLikeShell(Cmd):
@@ -49,14 +49,27 @@ class SqlLikeShell(Cmd):
         else:
             self.prompt = self._fsm.prompt()
 
-    def emptyline(self):
-        """
-        Empty line handler
-        """
-
     def do_bye(self, _):
         """
         Exit the SQL-like shell
         """
-        print(SQL_BYE)
+        return self._exit()
+
+    def do_exit(self, _):
+        """
+        Exit the SQL-like shell
+        """
+        return self._exit()
+
+    def do_quit(self, _):
+        """
+        Exit the SQL-like shell
+        """
+        return self._exit()
+
+    def _exit(self):
+        """
+        Exit the SQL-like shell
+        """
+        print(SQL_EXIT)
         return True

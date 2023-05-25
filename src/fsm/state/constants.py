@@ -16,18 +16,18 @@ Visier SQL-like Read Eval Print Loop (REPL) constants.
 """
 
 # SQL-like shell constants
-SQL_PROMPT = "\x1b[1;34;40manalytic> \x1b[1;37;40m"
-SQL_CONTINUE_PROMPT = "\x1b[1;34;40m        | \x1b[1;37;40m"
+SQL_PROMPT = "analytic> "
+SQL_CONTINUE_PROMPT = "        | "
 SQL_OPTIONS = {
         "memberDisplayMode": "COMPACT",
         "zeroVisibility": "ELIMINATE",
         "nullVisibility": "ELIMINATE"
     }
-SQL_STAGING_PROMPT = "\x1b[1;34;40mstaging> \x1b[1;37;40m"
-SQL_STAGING_CONTINUE_PROMPT = "\x1b[1;34;40m       | \x1b[1;37;40m"
+SQL_STAGING_PROMPT = "staging> "
+SQL_STAGING_CONTINUE_PROMPT = "       | "
 
-SQL_TRANSACTION_PROMPT = "\x1b[1;34;40mstaging:tx> \x1b[1;37;40m"
-SQL_TRANSACTION_CONTINUE_PROMPT = "\x1b[1;34;40m          | \x1b[1;37;40m"
+SQL_TRANSACTION_PROMPT = "staging:tx> "
+SQL_TRANSACTION_CONTINUE_PROMPT = "          | "
 
 STATE_ANALYTIC = "analytic_state"
 STATE_STAGING = "staging_state"
