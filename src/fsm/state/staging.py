@@ -17,11 +17,10 @@ Defines the FSM State for staging SQL-like query execution.
 
 import re
 from typing import Tuple
-from requests import Response
-from visier.connector import VisierSession, SessionContext, QueryExecutionError
+from visier.connector import VisierSession, QueryExecutionError
+from visier.api import DirectIntakeApiClient
 from .state import State, is_set_cmd, parse_attr_cmd
-from .constants import (PROJECT_PROD,
-                        SQL_STAGING_PROMPT,
+from .constants import (SQL_STAGING_PROMPT,
                         SQL_STAGING_CONTINUE_PROMPT,
                         VALUE_ANALYTIC,
                         STATE_ANALYTIC,
@@ -32,7 +31,7 @@ class StagingState(State):
     def __init__(self, session: VisierSession) -> None:
         super().__init__()
         self._begin = re.compile(r'^\s*begin\s+transaction\s*$', re.IGNORECASE)
-        self._session = session
+        self._client = DirectIntakeApiClient(session, raise_on_error=True)
 
     def prompt(self) -> str:
         return SQL_STAGING_PROMPT
@@ -59,11 +58,9 @@ class StagingState(State):
         return self._begin.match(cmd) is not None
 
     def _execute_begin(self) -> Tuple[str, object]:
-        def _api_begin(context: SessionContext) -> Response:
-            url = context.mk_url(f"/v1/data/directloads/{PROJECT_PROD}/transactions")
-            return context.session().post(url)
         try:
-            response = self._session.execute(_api_begin)
+            response = self._client.start_transaction()
             return (STATE_TRANSACTION, response.json())
         except QueryExecutionError as query_exec_error:
             self._error(f"Failed to start transaction: {query_exec_error}")
+            return None

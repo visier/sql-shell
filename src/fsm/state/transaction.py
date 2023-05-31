@@ -17,11 +17,10 @@ Defines the FSM State for executing SQL-like commands within the context of a tr
 
 from typing import Tuple
 import re
-from requests import Response
-from visier.connector import VisierSession, SessionContext, QueryExecutionError
+from visier.connector import VisierSession, QueryExecutionError
+from visier.api import DirectIntakeApiClient
 from .state import State
-from .constants import (PROJECT_PROD,
-                        SQL_TRANSACTION_PROMPT,
+from .constants import (SQL_TRANSACTION_PROMPT,
                         SQL_TRANSACTION_CONTINUE_PROMPT,
                         STATE_STAGING,
                         TRANSACTION_ID)
@@ -31,7 +30,7 @@ class TransactionState(State):
     """State for executing SQL-like commands within the context of a transaction."""
     def __init__(self, session: VisierSession) -> None:
         super().__init__()
-        self._session = session
+        self._client = DirectIntakeApiClient(session, raise_on_error=True)
         self._copy = re.compile(r'^\s*copy\s+(?P<table_name>\w+)\s+from\s+\'(?P<file_path>[^\']*)\'\s*$', re.IGNORECASE)
 
     def prompt(self) -> str:
@@ -61,36 +60,23 @@ class TransactionState(State):
 
     def _execute_upload(self, cmd: str) -> None:
         match = self._copy.match(cmd)
-        table_name = match.group("table_name")
+        object_name = match.group("table_name")
         file_path = match.group("file_path")
-
-        def _api_upload(context: SessionContext) -> Response:
-            transaction_id = self._get_transaction_id()
-            url = context.mk_url(f"/v1/data/directloads/{PROJECT_PROD}/transactions/{transaction_id}/{table_name}")
-            return context.session().put(url, files={"file": open(file_path, "rb")})
         try:
-            self._session.execute(_api_upload)
+            self._client.upload_file(self._get_transaction_id(), object_name, file_path)
         except QueryExecutionError as query_exec_error:
             self._error(f"Could not upload data: {query_exec_error}")
 
     def _execute_commit(self) -> Tuple[str, object]:
-        def _api_commit(context: SessionContext) -> Response:
-            transaction_id = self._get_transaction_id()
-            url = context.mk_url(f"/v1/data/directloads/{PROJECT_PROD}/transactions/{transaction_id}")
-            return context.session().post(url)
         try:
-            self._session.execute(_api_commit)
+            self._client.commit_transaction(self._get_transaction_id())
         except QueryExecutionError as query_exec_error:
             self._error(f"Could not commit transaction: {query_exec_error}")
         return (STATE_STAGING, {})
 
     def _execute_rollback(self) -> Tuple[str, object]:
-        def _api_rollback(context: SessionContext) -> Response:
-            transaction_id = self._get_transaction_id()
-            url = context.mk_url(f"/v1/data/directloads/{PROJECT_PROD}/transactions/{transaction_id}")
-            return context.session().delete(url)
         try:
-            self._session.execute(_api_rollback)
+            self._client.rollback_transaction(self._get_transaction_id())
         except QueryExecutionError as query_exec_error:
             self._error(f"Could not rollback transaction: {query_exec_error}")
         return (STATE_STAGING, {})
