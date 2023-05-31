@@ -7,7 +7,7 @@ name = "visier-sqllike-shell"
 authors = [
     {name = "Visier Research & Development", email = "info@visier.com"},
 ]
-description = """Sample Command line utitlity for executing SQL-like queries against the Visier platform"""
+description = """Sample Command Line utility for executing SQL-like queries against the Visier platform"""
 readme = "README.md"
 requires-python = ">=3.8"
 keywords = ["sql", "repl", "shell", "visier"]
