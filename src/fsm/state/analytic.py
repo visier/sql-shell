@@ -17,6 +17,7 @@ Defines the FSM State for analytic SQL-like query execution.
 
 from typing import Tuple
 from visier.connector import VisierSession, QueryExecutionError
+from visier.api import QueryApiClient
 from display.table import TableDisplay
 from .state import State, is_set_cmd, parse_attr_cmd
 from .constants import SQL_CONTINUE_PROMPT, SQL_PROMPT, SQL_OPTIONS, VALUE_STAGING, STATE_STAGING
@@ -26,7 +27,7 @@ class AnalyticState(State):
     """State for analytic SQL-like query execution."""
     def __init__(self, session: VisierSession, max_col_width: int) -> None:
         super().__init__()
-        self._session = session
+        self._client = QueryApiClient(session, raise_on_error=True)
         self._max_col_width = max_col_width
 
     def prompt(self) -> str:
@@ -57,7 +58,7 @@ class AnalyticState(State):
     def _execute_data_query(self, cmd: str):
         "Executes a data query"
         try:
-            result = self._session.execute_sqllike(cmd, SQL_OPTIONS)
+            result = self._client.sqllike(cmd, SQL_OPTIONS)
             table = TableDisplay(result, max_col_width=self._max_col_width)
             table.display()
         except QueryExecutionError as error:
