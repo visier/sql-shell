@@ -49,6 +49,9 @@ class SqlLikeShell(Cmd):
         else:
             self.prompt = self._fsm.prompt()
 
+    def emptyline(self) -> bool:
+        """Empty line handler. Do nothing."""
+
     def do_bye(self, _):
         """
         Exit the SQL-like shell
