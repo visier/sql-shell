@@ -30,6 +30,7 @@ def main():
     parser.add_argument("-p", "--password", help="Visier password", type=str)
     parser.add_argument("-a", "--apikey", help="Visier API key", type=str)
     parser.add_argument("-v", "--vanity", help="Visier vanity", type=str)
+    parser.add_argument("-t", "--tenant", help="Visier partner tenant name", type=str)
     parser.add_argument("-H", "--host", help="Visier host", type=str)
     parser.add_argument("-w", "--width", help="Maximum column width", type=int, default=30)
     parser.add_argument("-s", "--schema", help="The initial schema to use",
@@ -40,6 +41,7 @@ def main():
     password = args.password or os.getenv("VISIER_PASSWORD")
     apikey = args.apikey or os.getenv("VISIER_APIKEY")
     vanity = args.vanity or os.getenv("VISIER_VANITY")
+    tenant = args.tenant or os.getenv("VISIER_TENANT")
     host = args.host or os.getenv("VISIER_HOST")
 
     if not username or not password or not apikey or not host:
@@ -51,7 +53,8 @@ def main():
         password = password,
         host = host,
         api_key = apikey,
-        vanity = vanity)
+        vanity = vanity,
+        tenant = tenant)
 
     with VisierSession(auth) as session:
         SqlLikeShell(session, args.width, args.schema).cmdloop()

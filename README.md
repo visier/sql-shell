@@ -30,17 +30,19 @@ Upon starting, the shell will immediately attempt to connect to the Visier platf
 * `VISIER_PASSWORD`
 * `VISIER_APIKEY`
 * `VISIER_VANITY`
+* `VISIER_TENANT`
 
 On linux-like **non-production** environments, it may be beneficial to persist these values in a file that you 'source' into your virtual environment. 	
 Create a file named `.env` and populate it like the following example:
 ```
 echo -n "Enter the password for the Visier API User: "
 read -s vpwd
-export VISIER_HOST=https://example.api.visier.io
+export VISIER_VANITY=example
+export VISIER_HOST=https://$VISIER_VANITY.api.visier.io
 export VISIER_USERNAME=apiuser@example.com
 export VISIER_PASSWORD=$vpwd
+export VISIER_TENANT=tenant-code
 export VISIER_APIKEY=the-api-key-issued-by-visier
-export VISIER_VANITY=example
 ```
 
 Source the environment and provide the password:
