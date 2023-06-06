@@ -1,46 +1,48 @@
 ![linting](https://github.com/visier/sql-shell/actions/workflows/pylint.yml/badge.svg)
 # Visier SQL-like Shell
-The Visier SQL-like Shell is a small application that technical users and builders can use to issue queries in Visier's SQL-like syntax against the Visier platform.
+The Visier SQL-like Shell is an application that allows technical users and builders to issue queries in Visier's SQL-like syntax against the Visier platform.
 
 ## Prerequisites
-The SQL-like Shell issues queries to the Visier platform using the platform's public APIs. In order to successfully connect to your Visier People data, you need:
+The SQL-like Shell issues queries to the Visier platform using the platform's public APIs. To successfully connect to your Visier data, you need:
 * The URL domain name prefix. For example: `https://{vanity-name}.api.visier.io`.
 * An API key issued by Visier.
 * A username identifying a user within your organization's Visier tenant who has been granted API access capabilities.
-* That user's password
+* That user's password.
 
 ## Installation
-We recommend that you install this application in a virtual environment..
+We recommend that you install this application in a virtual environment.
 ```sh
 python3 -m venv visier-sql
 source visier-sql/bin/activate
 pip install -U build
 python -m build
 ```
-Once the build has completed successfully, install the Python Wheel file that has been placed in the `dist` directory. For example:
+After the build completes successfully, install the Python Wheel file found in the `dist` directory. For example:
 ```sh
 pip install dist/visier_sqllike_shell-0.8.2-py3-none-any.whl
 ```
-This installs, in the active virtual environment, a command line utility named `vsql-shell`
+This installs a command line utility named `vsql-shell` in the active virtual environment.
 
-## Run the shell
-Upon starting, the shell will immediately attempt to connect to the Visier platform using the provided credentials. These can either be passed in through environment variables:
+## Run the Shell
+After starting, the shell immediately attempts to connect to the Visier platform using the provided credentials. You can pass in credentials through environment variables:
 * `VISIER_HOST`
 * `VISIER_USERNAME`
 * `VISIER_PASSWORD`
 * `VISIER_APIKEY`
 * `VISIER_VANITY`
+* `VISIER_TARGET_TENANT_ID`
 
-On linux-like **non-production** environments, it may be beneficial to persist these values in a file that you 'source' into your virtual environment. 	
+In Linux-like **non-production** environments, it may be beneficial to persist these values in a file that you 'source' into your virtual environment. 	
 Create a file named `.env` and populate it like the following example:
 ```
 echo -n "Enter the password for the Visier API User: "
 read -s vpwd
-export VISIER_HOST=https://example.api.visier.io
+export VISIER_VANITY=example
+export VISIER_HOST=https://$VISIER_VANITY.api.visier.io
 export VISIER_USERNAME=apiuser@example.com
 export VISIER_PASSWORD=$vpwd
+export VISIER_TARGET_TENANT_ID=partner-sub-tenant-code
 export VISIER_APIKEY=the-api-key-issued-by-visier
-export VISIER_VANITY=example
 ```
 
 Source the environment and provide the password:
@@ -48,23 +50,23 @@ Source the environment and provide the password:
 $ source .env
 ```
 
-Now the REPL can be started simply by running:
+You can start the REPL by running:
 ```
 $ vsql-shell
 ```
 
-Alternatively, credentials can be provided through command line arguments. Run the application with `--help` to get the argument specifics:
+Alternatively, you can provide credentials through command line arguments. Run the application with `--help` to get the argument specifics:
 
 ```
 $ vsql-shell --help`
 ```
 
 ```sh
-usage: vsql-shell [-h] [-u USERNAME] [-p PASSWORD] [-a APIKEY] [-v VANITY] [-H HOST] [-w WIDTH]
+usage: vsql-shell [-h] [-u USERNAME] [-p PASSWORD] [-a APIKEY] [-v VANITY] [-t TARGET_TENANT_ID] [-H HOST] [-w WIDTH] [-s {analytic,staging}]
 
 Visier SQL-like Shell
 
-options:
+optional arguments:
   -h, --help            show this help message and exit
   -u USERNAME, --username USERNAME
                         Visier username
@@ -74,12 +76,16 @@ options:
                         Visier API key
   -v VANITY, --vanity VANITY
                         Visier vanity
+  -t TARGET_TENANT_ID, --target_tenant_id TARGET_TENANT_ID
+                        Visier partner tenant name
   -H HOST, --host HOST  Visier host
   -w WIDTH, --width WIDTH
                         Maximum column width
+  -s {analytic,staging}, --schema {analytic,staging}
+                        The initial schema to use
 ```
 ## Example
-Once the application has successfully started and established a connection with the Visier platform, it is ready to execute SQL-like queries:
+After the application starts and establishes a connection with the Visier platform, it's ready to execute SQL-like queries:
 ```
 Welcome to the Visier SQL-like Shell.
 Type help or ? to list commands.
@@ -109,8 +115,8 @@ Reporting period        |Country                    |count
 ...
 ```
 
-## Quitting the application
-Execute command `bye` without any other commands and the application will close.
+## Quit the Application
+Execute one of the commands `bye`, `exit` or `quit` without any other commands to close the application.
 ```
 sql> bye
 Closing the application
