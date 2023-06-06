@@ -34,7 +34,7 @@ After starting, the shell immediately attempts to connect to the Visier platform
 
 In Linux-like **non-production** environments, it may be beneficial to persist these values in a file that you 'source' into your virtual environment. 	
 Create a file named `.env` and populate it like the following example:
-```
+```sh
 echo -n "Enter the password for the Visier API User: "
 read -s vpwd
 export VISIER_VANITY=example
@@ -51,13 +51,13 @@ $ source .env
 ```
 
 You can start the REPL by running:
-```
+```sh
 $ vsql-shell
 ```
 
 Alternatively, you can provide credentials through command line arguments. Run the application with `--help` to get the argument specifics:
 
-```
+```sh
 $ vsql-shell --help`
 ```
 
