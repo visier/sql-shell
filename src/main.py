@@ -15,7 +15,6 @@
 Visier SQL-like Shell provides a REPL interface to Visier's SQL-like query language.
 """
 
-import os
 import argparse
 from visier.connector import add_auth_arguments, make_auth
 from visier.connector import VisierSession
