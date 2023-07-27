@@ -1,2 +1,2 @@
 pytest
-visier-connector>=0.9.7
+visier-connector>=0.9.8

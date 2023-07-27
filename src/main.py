@@ -15,9 +15,8 @@
 Visier SQL-like Shell provides a REPL interface to Visier's SQL-like query language.
 """
 
-import os
 import argparse
-from visier.connector import Authentication
+from visier.connector import add_auth_arguments, make_auth
 from visier.connector import VisierSession
 from repl import SqlLikeShell
 from fsm.state.constants import VALUE_ANALYTIC, VALUE_STAGING
@@ -26,35 +25,13 @@ from fsm.state.constants import VALUE_ANALYTIC, VALUE_STAGING
 def main():
     "Main entrypoint for the visier-sqllike-shell command."
     parser = argparse.ArgumentParser(description="Visier SQL-like Shell")
-    parser.add_argument("-u", "--username", help="Visier username", type=str)
-    parser.add_argument("-p", "--password", help="Visier password", type=str)
-    parser.add_argument("-a", "--apikey", help="Visier API key", type=str)
-    parser.add_argument("-v", "--vanity", help="Visier vanity", type=str)
-    parser.add_argument("-t", "--target_tenant_id", help="Visier partner tenant name", type=str)
-    parser.add_argument("-H", "--host", help="Visier host", type=str)
-    parser.add_argument("-w", "--width", help="Maximum column width", type=int, default=30)
+    add_auth_arguments(parser)
     parser.add_argument("-s", "--schema", help="The initial schema to use",
                         choices=[VALUE_ANALYTIC, VALUE_STAGING], default=VALUE_ANALYTIC)
+    parser.add_argument("-w", "--width", help="Maximum column width", type=int, default=30)
     args = parser.parse_args()
 
-    username = args.username or os.getenv("VISIER_USERNAME")
-    password = args.password or os.getenv("VISIER_PASSWORD")
-    apikey = args.apikey or os.getenv("VISIER_APIKEY")
-    vanity = args.vanity or os.getenv("VISIER_VANITY")
-    target_tenant_id = args.target_tenant_id or os.getenv("VISIER_TARGET_TENANT_ID")
-    host = args.host or os.getenv("VISIER_HOST")
-
-    if not username or not password or not apikey or not host:
-        raise ValueError("""ERROR: Missing required credentials.
-        Please provide username, password, apikey, and host.""")
-
-    auth = Authentication(
-        username = username,
-        password = password,
-        host = host,
-        api_key = apikey,
-        vanity = vanity,
-        target_tenant_id = target_tenant_id)
+    auth = make_auth(args)
 
     with VisierSession(auth) as session:
         SqlLikeShell(session, args.width, args.schema).cmdloop()
