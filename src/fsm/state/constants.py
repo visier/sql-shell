@@ -26,8 +26,7 @@ SQL_OPTIONS = {
 SQL_STAGING_PROMPT = "staging> "
 SQL_STAGING_CONTINUE_PROMPT = "       | "
 
-SQL_TRANSACTION_PROMPT = "staging:tx> "
-SQL_TRANSACTION_CONTINUE_PROMPT = "          | "
+SQL_TRANSACTION_CONTINUE_PROMPT = "       | "
 
 STATE_ANALYTIC = "analytic_state"
 STATE_STAGING = "staging_state"
