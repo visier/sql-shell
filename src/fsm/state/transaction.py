@@ -20,8 +20,7 @@ import re
 from visier.connector import VisierSession, QueryExecutionError
 from visier.api import DirectIntakeApiClient
 from .state import State
-from .constants import (SQL_TRANSACTION_PROMPT,
-                        SQL_TRANSACTION_CONTINUE_PROMPT,
+from .constants import (SQL_TRANSACTION_CONTINUE_PROMPT,
                         STATE_STAGING,
                         TRANSACTION_ID)
 
@@ -34,7 +33,7 @@ class TransactionState(State):
         self._copy = re.compile(r'^\s*copy\s+(?P<table_name>\w+)\s+from\s+\'(?P<file_path>[^\']*)\'\s*$', re.IGNORECASE)
 
     def prompt(self) -> str:
-        return SQL_TRANSACTION_PROMPT
+        return f"staging:{self._get_transaction_id()}> "
 
     def continue_prompt(self) -> str:
         return SQL_TRANSACTION_CONTINUE_PROMPT
@@ -66,6 +65,8 @@ class TransactionState(State):
             self._client.upload_file(self._get_transaction_id(), object_name, file_path)
         except QueryExecutionError as query_exec_error:
             self._error(f"Could not upload data: {query_exec_error}")
+        except FileNotFoundError as file_not_found_error:
+            self._error(f"File not found: {file_not_found_error}")
 
     def _execute_commit(self) -> Tuple[str, object]:
         try:
