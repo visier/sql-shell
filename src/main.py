@@ -19,9 +19,9 @@ Visier SQL-like Shell provides a REPL interface to Visier's SQL-like query langu
 import argparse
 from visier.connector import add_auth_arguments, make_auth
 from visier.connector import VisierSession
+from dotenv import dotenv_values
 from repl import SqlLikeShell
 from fsm.state.constants import VALUE_ANALYTIC, VALUE_STAGING
-from dotenv import dotenv_values
 
 
 def main():
