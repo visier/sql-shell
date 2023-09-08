@@ -19,7 +19,7 @@ python -m build
 ```
 After the build completes successfully, install the Python Wheel file found in the `dist` directory. For example:
 ```sh
-pip install dist/visier_sqllike_shell-0.8.2-py3-none-any.whl
+pip install dist/visier_sqllike_shell-0.9.8-py3-none-any.whl
 ```
 This installs a command line utility named `vsql-shell` in the active virtual environment.
 
@@ -50,6 +50,9 @@ Source the environment and provide the password:
 $ source .env
 ```
 
+### OAuth2 Authentication
+The SQL-shell uses the [visier-connector](/visier/connector-python) to connect to Visier.  For more information about setting up OAuth 2.0 with Visier, see [visier-connector](/visier/connector-python).
+
 You can start the REPL by running:
 ```sh
 $ vsql-shell
@@ -62,27 +65,34 @@ $ vsql-shell --help`
 ```
 
 ```sh
-usage: vsql-shell [-h] [-u USERNAME] [-p PASSWORD] [-a APIKEY] [-v VANITY] [-t TARGET_TENANT_ID] [-H HOST] [-w WIDTH] [-s {analytic,staging}]
+usage: vsql-shell [-h] [-a APIKEY] [-c CLIENT_ID] [-S CLIENT_SECRET] [-H HOST] [-p PASSWORD] [-r REDIRECT_URI] [-t TARGET_TENANT_ID] [-u USERNAME]
+               [-v VANITY] [-s {analytic,staging}] [-w WIDTH]
 
 Visier SQL-like Shell
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
-  -u USERNAME, --username USERNAME
-                        Visier username
-  -p PASSWORD, --password PASSWORD
-                        Visier password
   -a APIKEY, --apikey APIKEY
                         Visier API key
+  -c CLIENT_ID, --client-id CLIENT_ID
+                        Visier OAuth client ID
+  -S CLIENT_SECRET, --client-secret CLIENT_SECRET
+                        Visier OAuth client secret
+  -H HOST, --host HOST  Visier host
+  -p PASSWORD, --password PASSWORD
+                        Visier password
+  -r REDIRECT_URI, --redirect-uri REDIRECT_URI
+                        Visier OAuth redirect URI
+  -t TARGET_TENANT_ID, --target-tenant-id TARGET_TENANT_ID
+                        Visier partner tenant name
+  -u USERNAME, --username USERNAME
+                        Visier username
   -v VANITY, --vanity VANITY
                         Visier vanity
-  -t TARGET_TENANT_ID, --target_tenant_id TARGET_TENANT_ID
-                        Visier partner tenant name
-  -H HOST, --host HOST  Visier host
-  -w WIDTH, --width WIDTH
-                        Maximum column width
   -s {analytic,staging}, --schema {analytic,staging}
                         The initial schema to use
+  -w WIDTH, --width WIDTH
+                        Maximum column width
 ```
 ## Example
 After the application starts and establishes a connection with the Visier platform, it's ready to execute SQL-like queries:

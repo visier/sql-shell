@@ -19,6 +19,7 @@ Visier SQL-like Shell provides a REPL interface to Visier's SQL-like query langu
 import argparse
 from visier.connector import add_auth_arguments, make_auth
 from visier.connector import VisierSession
+from dotenv import dotenv_values
 from repl import SqlLikeShell
 from fsm.state.constants import VALUE_ANALYTIC, VALUE_STAGING
 
@@ -30,10 +31,10 @@ def main():
     parser.add_argument("-s", "--schema", help="The initial schema to use",
                         choices=[VALUE_ANALYTIC, VALUE_STAGING], default=VALUE_ANALYTIC)
     parser.add_argument("-w", "--width", help="Maximum column width", type=int, default=30)
+
     args = parser.parse_args()
-
-    auth = make_auth(args)
-
+    env_creds = dotenv_values()
+    auth = make_auth(args=args, env_values=env_creds)
     with VisierSession(auth) as session:
         SqlLikeShell(session, args.width, args.schema).cmdloop()
 
