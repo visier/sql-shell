@@ -14,7 +14,7 @@ keywords = ["sql", "repl", "shell", "visier"]
 license = {file = "LICENSE"}
 dynamic = ["version"]
 dependencies = [
-    "visier-connector>=0.9.8",
+    "visier-connector>=1.0.0",
 ]
 
 [tool.setuptools]

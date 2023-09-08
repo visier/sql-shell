@@ -19,4 +19,4 @@ Visier SQL-like Read Eval Print Loop (REPL) module
 from .shell import SqlLikeShell
 from .cmd_queue import CommandQueue
 
-__version__ = "0.9.7"
+__version__ = "0.9.8"
