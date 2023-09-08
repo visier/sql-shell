@@ -51,7 +51,7 @@ $ source .env
 ```
 
 ### OAuth2 Authentication
-The SQL-shell uses the [visier-connector](/visier/connector-python) to connect to Visier.  For more information about setting up OAuth 2.0 with Visier, see [visier-connector](/visier/connector-python).
+The SQL-shell uses the [visier-connector](https://github.com/visier/connector-python) to connect to Visier.  For more information about setting up OAuth 2.0 with Visier, see [visier-connector](https://github.com/visier/connector-python).
 
 You can start the REPL by running:
 ```sh
