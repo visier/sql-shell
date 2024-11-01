@@ -46,8 +46,7 @@ class CommandQueue():
 
     def commands(self):
         "Generates a list of commands"
-        for cmd in self._queue:
-            yield cmd
+        yield from self._queue
         self._queue = []
 
     def fragment(self):
