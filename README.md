@@ -4,8 +4,8 @@ The Visier SQL-like Shell is an application that allows technical users and buil
 
 ## Prerequisites
 The SQL-like Shell issues queries to the Visier platform using the platform's public APIs. To successfully connect to your Visier data, you need:
-* The URL domain name prefix. For example: `https://{vanity-name}.api.visier.io`. To find your vanity name:
-  1. In Visier, in the global workspace, click **Settings > Single Sign-On** or **Partner Single Sign-On**.
+* The URL domain name prefix with the following pattern: `https://{vanity-name}.api.visier.io`. To find your vanity name:
+  1. In Visier, in the global workspace, click **Settings**, then click **Single Sign-On** or **Partner Single Sign-On**.
   2. Under **Single Sign-On** or **Bypass Users (Optional)**, find your service provider endpoint; for example, `https://jupiter.visier.com/VServer/auth`. In this example, `jupiter` is the vanity name.
 * An API key issued by Visier.
 * A username identifying a user within your organization's Visier tenant who has been granted API access capabilities.
